@@ -6,6 +6,9 @@ A solução permite cadastrar veículos concorrentes, gerenciar suas especifica�
 
 ---
 
+## Turma
+**3ESPW**
+
 ## Equipe
 | Nome | RM |
 |---|---|

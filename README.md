@@ -6,6 +6,17 @@ A solução permite cadastrar veículos concorrentes, gerenciar suas especifica�
 
 ---
 
+## Equipe
+| Nome | RM |
+|---|---|
+| Artur Alves Tenca | 555171 |
+| Igor Brunelli Ralo | 555035 |
+| João Pedro Signor Avelar | 558375 |
+| Roger Cardoso Ferreira | 557230 |
+| Victor Mattenhauer Lopes | 555753 |
+
+---
+
 ## Arquitetura
 
 ```
@@ -283,14 +294,3 @@ GET /api/v1/veiculos/1
 ```
 
 Deve retornar todas as 34 especificações técnicas da Ranger Raptor 2024.
-
----
-
-## Equipe
-| Nome | RM |
-|---|---|
-| Artur Alves Tenca | 555171 |
-| Igor Brunelli Ralo | 555035 |
-| João Pedro Signor Avelar | 558375 |
-| Roger Cardoso Ferreira | 557230 |
-| Victor Mattenhauer Lopes | 555753 |

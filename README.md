@@ -8,30 +8,9 @@ A solução permite cadastrar veículos concorrentes, gerenciar suas especifica�
 
 ## Arquitetura
 
-```
-Cliente (Swagger UI / App Mobile / Postman)
-        │
-        ▼
-┌─────────────────────┐
-│   Controller Layer  │  ← VeiculoController, EspecificacaoController
-│  (REST Endpoints)   │
-└────────┬────────────┘
-         │
-┌────────▼────────────┐
-│   Service Layer     │  ← VeiculoService, EspecificacaoService
-│  (Regras de negócio)│
-└────────┬────────────┘
-         │
-┌────────▼────────────┐
-│  Repository Layer   │  ← VeiculoRepository, EspecificacaoRepository
-│  (Spring Data JPA)  │
-└────────┬────────────┘
-         │
-┌────────▼────────────┐
-│   PostgreSQL 16     │  ← Tabelas: veiculo, especificacao
-│ (Flyway Migrations) │
-└─────────────────────┘
-```
+![Arquitetura em camadas](./docs/arquitetura.svg)
+
+Camadas: `Controller` (endpoints REST) → `Service` (regras de negócio) → `Repository` (Spring Data JPA) → `PostgreSQL` (com migrações Flyway). O `SecurityConfig` e o `JwtAuthenticationFilter` interceptam a requisição antes do Controller, validando o token JWT e o perfil do usuário.
 
 ---
 
@@ -111,6 +90,60 @@ Após subir a aplicação, acesse:
 |---|---|
 | **Swagger UI** | http://localhost:8080/swagger-ui.html |
 | **OpenAPI JSON** | http://localhost:8080/api-docs |
+
+---
+
+## Autenticação (JWT)
+
+A API usa **JWT (JSON Web Token)** com Spring Security. Os endpoints de veículos exigem um token válido no header `Authorization: Bearer <token>`.
+
+| Perfil | Permissões |
+|---|---|
+| `USER` | Leitura (`GET`) de veículos e especificações |
+| `ADMIN` | Leitura + escrita (`POST`, `PUT`, `DELETE`) |
+
+### Endpoints — `/api/v1/auth`
+
+| Método | Endpoint | Descrição | Status de sucesso |
+|---|---|---|---|
+| `POST` | `/api/v1/auth/registrar` | Cria um novo usuário e retorna o token | `201 Created` |
+| `POST` | `/api/v1/auth/login` | Autentica e retorna o token | `200 OK` |
+
+**Usuário administrador pré-cadastrado** (via migração `V3`): `admin@fordchallenge.com` / `admin123`.
+
+### Fluxo de autenticação
+
+![Fluxo de autenticação JWT](./docs/fluxo-autenticacao.svg)
+
+### Exemplo de login
+
+**Request:**
+```http
+POST /api/v1/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@fordchallenge.com",
+  "senha": "admin123"
+}
+```
+
+**Response `200`:**
+```json
+{
+  "token": "eyJhbGciOiJIUzI1NiJ9...",
+  "tipo": "Bearer",
+  "expiresIn": 3600000,
+  "email": "admin@fordchallenge.com",
+  "perfil": "ADMIN"
+}
+```
+
+Use o token nas próximas requisições:
+```http
+GET /api/v1/veiculos
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
+```
 
 ---
 
@@ -226,6 +259,8 @@ A API retorna erros no formato padronizado:
 | Código | Situação |
 |---|---|
 | `400 Bad Request` | Dados de entrada inválidos (validação) |
+| `401 Unauthorized` | Sem token, token inválido/expirado ou credenciais incorretas no login |
+| `403 Forbidden` | Autenticado, mas sem o perfil (role) necessário para a operação |
 | `404 Not Found` | Recurso não encontrado |
 | `409 Conflict` | Veículo já cadastrado (marca+modelo+versão duplicados) |
 | `422 Unprocessable Entity` | Violação de regra de negócio |

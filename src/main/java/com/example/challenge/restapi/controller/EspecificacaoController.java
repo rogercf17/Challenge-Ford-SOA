@@ -20,7 +20,7 @@ import java.util.List;
 @RequestMapping("/api/v1/veiculos/{veiculoId}/especificacoes")
 @RequiredArgsConstructor
 @Tag(name = "Especificações", description = "Gestão individual de especificações técnicas de um veículo")
-@CrossOrigin("https://challenge-ford-soa.onrender.com/swagger-ui.html")
+@CrossOrigin("https://challenge-ford-soa.onrender.com")
 public class EspecificacaoController {
     private final EspecificacaoService service;
 

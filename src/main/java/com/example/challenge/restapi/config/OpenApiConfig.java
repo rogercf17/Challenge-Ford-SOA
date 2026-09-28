@@ -48,8 +48,7 @@ public class OpenApiConfig {
                                 .name("MIT")
                                 .url("https://opensource.org/licenses/MIT")))
                 .servers(List.of(
-                        new Server().url("http://localhost:8080").description("Servidor local"),
-                        new Server().url("https://ford-challenge.exemplo.com.br").description("Produção")
+                        new Server().url("/").description("Servidor atual")
                 ))
                 // Declara o esquema "bearerAuth": é isso que faz o Swagger mostrar
                 // o botão "Authorize" (cadeado) e o campo Authorization em cada endpoint protegido.

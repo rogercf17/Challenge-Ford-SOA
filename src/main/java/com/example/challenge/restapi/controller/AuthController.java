@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
 @Tag(name = "Autenticação", description = "Registro e login de usuários, emissão de token JWT")
-@CrossOrigin("https://challenge-ford-soa.onrender.com/")
+@CrossOrigin("https://challenge-ford-soa.onrender.com/swagger-ui.html")
 public class AuthController {
 
     private final AuthService authService;

@@ -18,24 +18,23 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-    // UserDetailsService vem de CustomUserDetailsService (classe própria), e não
-    // de um @Bean local: se fosse local, criaríamos um ciclo com jwtAuthenticationFilter,
-    // que também depende de UserDetailsService.
+
     private final UserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
+    private final CorsConfigurationSource corsConfigurationSource; // ⬅️ NOVO
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -43,7 +42,6 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -53,28 +51,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(ex -> ex
-                        // 401: sem token / token inválido em rota protegida
                         .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        // 403: autenticado, mas sem o perfil (role) necessário
                         .accessDeniedHandler(jwtAccessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Rotas públicas: login/registro e documentação Swagger
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**").permitAll()
-
-                        // Leitura de veículos/especificações: qualquer usuário autenticado (USER ou ADMIN)
                         .requestMatchers(HttpMethod.GET, "/api/v1/veiculos/**").hasAnyRole("USER", "ADMIN")
-
-                        // Escrita (criar/atualizar/remover) exige perfil ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/v1/veiculos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/veiculos/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/veiculos/**").hasRole("ADMIN")
-
-                        // Todo o restante exige autenticação
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(authenticationProvider())

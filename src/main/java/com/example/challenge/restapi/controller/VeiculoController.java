@@ -22,6 +22,7 @@ import java.util.List;
 @RequestMapping("/api/v1/veiculos")
 @RequiredArgsConstructor
 @Tag(name = "Veiculos", description = "Gestao de veiculos concorrentes e suas especificacoes tecnicas - Desafio 01 Ford FIAP 2026")
+@CrossOrigin("https://challenge-ford-soa.onrender.com/")
 public class VeiculoController {
     private final VeiculoService veiculoService;
 
